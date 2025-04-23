@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="xp-style.css">
+    <title>VERBASIZER</title>
+    <style>
+    
+    </style>
+</head>
+<body>
+    <div class="xp-wallpaper"></div>
+    
+    <div class="container">
+        <div class="title-bar">
+            <div>VERBASIZER</div>
+            <div class="title-buttons">
+                <div class="title-button minimize">_</div>
+                <div class="title-button maximize">□</div>
+                <div class="title-button close">×</div>
+            </div>
+        </div>
+        
+        <div class="menu-bar">
+            <div class="menu-item">File</div>
+            <div class="menu-item">Edit</div>
+            <div class="menu-item">View</div>
+            <div class="menu-item">Help</div>
+        </div>
+        
+        <div class="content">
+            <div class="columns-container">
+                <div class="column">
+                    <div class="column-label">Column 1</div>
+                    <textarea id="column1" placeholder="Enter words (one per line)"></textarea>
+                </div>
+                <div class="column">
+                    <div class="column-label">Column 2</div>
+                    <textarea id="column2" placeholder="Enter words (one per line)"></textarea>
+                </div>
+                <div class="column">
+                    <div class="column-label">Column 3</div>
+                    <textarea id="column3" placeholder="Enter words (one per line)"></textarea>
+                </div>
+                <div class="column">
+                    <div class="column-label">Column 4</div>
+                    <textarea id="column4" placeholder="Enter words (one per line)"></textarea>
+                </div>
+                <div class="column">
+                    <div class="column-label">Column 5</div>
+                    <textarea id="column5" placeholder="Enter words (one per line)"></textarea>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <button id="mixOnce">Generate One Mix</button>
+                </div>
+                
+                <div class="control-group">
+                    <button id="mixAll">Mix All Words</button>
+                </div>
+                
+                <div class="control-group">
+                    <label for="wordCount">Words:</label>
+                    <input type="number" id="wordCount" min="1" value="5">
+                    <button id="mixCustom">Custom Mix</button>
+                </div>
+            </div>
+            
+            <div id="output"></div>
+        </div>
+        
+        <div class="status-bar">
+            <div>Ready</div>
+            <div>Based on david bowie's verbasizer project</div>
+            <div>Words: <span id="wordCount-display">0</span></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Windows XP UI functionality
+            const closeButton = document.querySelector('.close');
+            closeButton.addEventListener('click', function() {
+                alert('This would close the application in a real Windows XP environment.');
+            });
+            
+            const minimizeButton = document.querySelector('.minimize');
+            minimizeButton.addEventListener('click', function() {
+                alert('This would minimize the application in a real Windows XP environment.');
+            });
+            
+            const maximizeButton = document.querySelector('.maximize');
+            maximizeButton.addEventListener('click', function() {
+                alert('This would maximize the application in a real Windows XP environment.');
+            });
+            
+            // Menu items
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    alert('This menu item would open in a real Windows XP environment.');
+                });
+            });
+            
+            // Verbasizer functionality
+            const columnElements = [
+                document.getElementById('column1'),
+                document.getElementById('column2'),
+                document.getElementById('column3'),
+                document.getElementById('column4'),
+                document.getElementById('column5')
+            ];
+            
+            const mixOnceButton = document.getElementById('mixOnce');
+            const mixAllButton = document.getElementById('mixAll');
+            const mixCustomButton = document.getElementById('mixCustom');
+            const wordCountInput = document.getElementById('wordCount');
+            const output = document.getElementById('output');
+            const wordCountDisplay = document.getElementById('wordCount-display');
+            
+            // Update word count in status bar
+            function updateWordCount() {
+                const columns = getColumnsContent();
+                const totalWords = columns.flat().length;
+                wordCountDisplay.textContent = totalWords;
+            }
+            
+            // Add event listeners to textareas for word count
+            columnElements.forEach(column => {
+                column.addEventListener('input', updateWordCount);
+            });
+            
+            // Generate a single mix with one word from each column
+            mixOnceButton.addEventListener('click', function() {
+                const columns = getColumnsContent();
+                const result = generateSingleMix(columns);
+                displayResult(result);
+            });
+            
+            // Generate a mix of ALL words from all columns
+            mixAllButton.addEventListener('click', function() {
+                const columns = getColumnsContent();
+                const result = generateAllWordsMix(columns);
+                displayResult(result);
+            });
+            
+            // Generate a custom length mix
+            mixCustomButton.addEventListener('click', function() {
+                const columns = getColumnsContent();
+                const wordCount = parseInt(wordCountInput.value);
+                const result = generateCustomMix(columns, wordCount);
+                displayResult(result);
+            });
+            
+            // Extract words from each column
+            function getColumnsContent() {
+                return columnElements.map(column => {
+                    const text = column.value.trim();
+                    return text ? text.split('\n').filter(word => word.trim() !== '') : [];
+                });
+            }
+            
+            // Generate a mix with one word from each non-empty column
+            function generateSingleMix(columns) {
+                const result = [];
+                
+                columns.forEach(column => {
+                    if (column.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * column.length);
+                        result.push(column[randomIndex]);
+                    }
+                });
+                
+                return result;
+            }
+            
+            // Generate a mix with ALL words from all columns (shuffled)
+            function generateAllWordsMix(columns) {
+                const allWords = columns.flat();
+                return shuffleArray([...allWords]);
+            }
+            
+            // Generate a custom mix with specified number of words
+            function generateCustomMix(columns, wordCount) {
+                // Flatten all words into one array
+                const allWords = columns.flat();
+                
+                // If not enough words, return what we have
+                if (allWords.length <= wordCount) {
+                    return shuffleArray([...allWords]);
+                }
+                
+                // Sample wordCount number of words without replacement
+                const result = [];
+                const tempWords = [...allWords];
+                
+                for (let i = 0; i < wordCount; i++) {
+                    if (tempWords.length === 0) break;
+                    
+                    const randomIndex = Math.floor(Math.random() * tempWords.length);
+                    result.push(tempWords[randomIndex]);
+                    tempWords.splice(randomIndex, 1);
+                }
+                
+                return result;
+            }
+            
+            // Shuffle array using Fisher-Yates algorithm
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+            
+            // Display the result in the output area
+            function displayResult(words) {
+                if (words.length === 0) {
+                    output.textContent = "Please add some words to the columns first.";
+                    return;
+                }
+                
+                output.textContent = words.join(' ');
+            }
+            
+            // Initialize word count
+            updateWordCount();
+        });
+    </script>
+</body>
+</html>
