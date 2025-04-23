@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="xp-style.css">
     <title>VERBASIZER</title>
-    <style>
-    
-    </style>
 </head>
 <body>
     <div class="xp-wallpaper"></div>
@@ -24,32 +21,51 @@
         
         <div class="menu-bar">
             <div class="menu-item">File</div>
-            <div class="menu-item">Edit</div>
-            <div class="menu-item">View</div>
+            <div class="menu-item" id="edit-menu">Edit</div>
+            <div class="menu-item" id="view-menu">View</div>
             <div class="menu-item">Help</div>
+            
+            <!-- View Menu Dropdown -->
+            <div class="view-options" id="view-options">
+                <div class="view-option" data-view="columns">Column Mode</div>
+                <div class="view-option" data-view="text">Text Mode</div>
+                <div class="view-separator"></div>
+                <!--<div class="view-option">Refresh</div>-->
+            </div>
         </div>
         
         <div class="content">
-            <div class="columns-container">
-                <div class="column">
-                    <div class="column-label">Column 1</div>
-                    <textarea id="column1" placeholder="Enter words (one per line)"></textarea>
+            <!-- Column Mode View -->
+            <div class="content-view active" id="columnsView">
+                <div class="columns-container">
+                    <div class="column">
+                        <div class="column-label">Column 1</div>
+                        <textarea id="column1" placeholder="Enter words (one per line)"></textarea>
+                    </div>
+                    <div class="column">
+                        <div class="column-label">Column 2</div>
+                        <textarea id="column2" placeholder="Enter words (one per line)"></textarea>
+                    </div>
+                    <div class="column">
+                        <div class="column-label">Column 3</div>
+                        <textarea id="column3" placeholder="Enter words (one per line)"></textarea>
+                    </div>
+                    <div class="column">
+                        <div class="column-label">Column 4</div>
+                        <textarea id="column4" placeholder="Enter words (one per line)"></textarea>
+                    </div>
+                    <div class="column">
+                        <div class="column-label">Column 5</div>
+                        <textarea id="column5" placeholder="Enter words (one per line)"></textarea>
+                    </div>
                 </div>
-                <div class="column">
-                    <div class="column-label">Column 2</div>
-                    <textarea id="column2" placeholder="Enter words (one per line)"></textarea>
-                </div>
-                <div class="column">
-                    <div class="column-label">Column 3</div>
-                    <textarea id="column3" placeholder="Enter words (one per line)"></textarea>
-                </div>
-                <div class="column">
-                    <div class="column-label">Column 4</div>
-                    <textarea id="column4" placeholder="Enter words (one per line)"></textarea>
-                </div>
-                <div class="column">
-                    <div class="column-label">Column 5</div>
-                    <textarea id="column5" placeholder="Enter words (one per line)"></textarea>
+            </div>
+            
+            <!-- Text Mode View -->
+            <div class="content-view" id="textView">
+                <div id="textModeContent">
+                    <div class="text-input-label">Text Input</div>
+                    <textarea id="textInput" placeholder="Paste your text here. Words will be extracted and randomized."></textarea>
                 </div>
             </div>
             
@@ -73,8 +89,8 @@
         </div>
         
         <div class="status-bar">
-            <div>Ready</div>
-            <div>Based on david bowie's verbasizer project</div>
+            <div>Based on david bowie's verbasizer progra</div>
+            <div id="current-mode">Column Mode</div>
             <div>Words: <span id="wordCount-display">0</span></div>
         </div>
     </div>
@@ -84,24 +100,75 @@
             // Windows XP UI functionality
             const closeButton = document.querySelector('.close');
             closeButton.addEventListener('click', function() {
-                alert('This would close the application in a real Windows XP environment.');
+                console.log('This would close the application in a real Windows XP environment.');
             });
             
             const minimizeButton = document.querySelector('.minimize');
             minimizeButton.addEventListener('click', function() {
-                alert('This would minimize the application in a real Windows XP environment.');
+                console.log('This would minimize the application in a real Windows XP environment.');
             });
             
             const maximizeButton = document.querySelector('.maximize');
             maximizeButton.addEventListener('click', function() {
-                alert('This would maximize the application in a real Windows XP environment.');
+                 console.log('This would maximize the application in a real Windows XP environment.');
             });
             
             // Menu items
-            const menuItems = document.querySelectorAll('.menu-item');
+            const menuItems = document.querySelectorAll('.menu-item:not(#view-menu)');
             menuItems.forEach(item => {
                 item.addEventListener('click', function() {
-                    alert('This menu item would open in a real Windows XP environment.');
+                     console.log('This menu item would open in a real Windows XP environment.');
+                });
+            });
+            
+            // View Menu functionality
+            const viewMenu = document.getElementById('view-menu');
+            const viewOptions = document.getElementById('view-options');
+            let menuOpen = false;
+            
+            viewMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (menuOpen) {
+                    viewOptions.style.display = 'none';
+                } else {
+                    const rect = viewMenu.getBoundingClientRect();
+                    viewOptions.style.top = (rect.bottom) + 'px';
+                    viewOptions.style.left = rect.left + 'px';
+                    viewOptions.style.display = 'block';
+                }
+                menuOpen = !menuOpen;
+            });
+            
+            // Close menu when clicking elsewhere
+            document.addEventListener('click', function() {
+                viewOptions.style.display = 'none';
+                menuOpen = false;
+            });
+            
+            // View switching functionality
+            const viewOptionElements = document.querySelectorAll('.view-option[data-view]');
+            const columnsView = document.getElementById('columnsView');
+            const textView = document.getElementById('textView');
+            const currentModeDisplay = document.getElementById('current-mode');
+            
+            viewOptionElements.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const view = this.getAttribute('data-view');
+                    
+                    if (view === 'columns') {
+                        columnsView.classList.add('active');
+                        textView.classList.remove('active');
+                        currentModeDisplay.textContent = 'Column Mode';
+                    } else if (view === 'text') {
+                        columnsView.classList.remove('active');
+                        textView.classList.add('active');
+                        currentModeDisplay.textContent = 'Text Mode';
+                    }
+                    
+                    updateWordCount();
+                    viewOptions.style.display = 'none';
+                    menuOpen = false;
                 });
             });
             
@@ -114,6 +181,7 @@
                 document.getElementById('column5')
             ];
             
+            const textInput = document.getElementById('textInput');
             const mixOnceButton = document.getElementById('mixOnce');
             const mixAllButton = document.getElementById('mixAll');
             const mixCustomButton = document.getElementById('mixCustom');
@@ -123,8 +191,16 @@
             
             // Update word count in status bar
             function updateWordCount() {
-                const columns = getColumnsContent();
-                const totalWords = columns.flat().length;
+                let totalWords = 0;
+                
+                if (columnsView.classList.contains('active')) {
+                    const columns = getColumnsContent();
+                    totalWords = columns.flat().length;
+                } else {
+                    const words = getTextContent();
+                    totalWords = words.length;
+                }
+                
                 wordCountDisplay.textContent = totalWords;
             }
             
@@ -133,26 +209,48 @@
                 column.addEventListener('input', updateWordCount);
             });
             
+            textInput.addEventListener('input', updateWordCount);
+            
             // Generate a single mix with one word from each column
             mixOnceButton.addEventListener('click', function() {
-                const columns = getColumnsContent();
-                const result = generateSingleMix(columns);
-                displayResult(result);
+                if (columnsView.classList.contains('active')) {
+                    const columns = getColumnsContent();
+                    const result = generateSingleMix(columns);
+                    displayResult(result);
+                } else {
+                    const words = getTextContent();
+                    // For text mode, a "single mix" is just one random word
+                    const result = words.length > 0 ? [words[Math.floor(Math.random() * words.length)]] : [];
+                    displayResult(result);
+                }
             });
             
-            // Generate a mix of ALL words from all columns
+            // Generate a mix of ALL words from all columns or text
             mixAllButton.addEventListener('click', function() {
-                const columns = getColumnsContent();
-                const result = generateAllWordsMix(columns);
-                displayResult(result);
+                if (columnsView.classList.contains('active')) {
+                    const columns = getColumnsContent();
+                    const result = generateAllWordsMix(columns);
+                    displayResult(result);
+                } else {
+                    const words = getTextContent();
+                    const result = shuffleArray([...words]);
+                    displayResult(result);
+                }
             });
             
             // Generate a custom length mix
             mixCustomButton.addEventListener('click', function() {
-                const columns = getColumnsContent();
                 const wordCount = parseInt(wordCountInput.value);
-                const result = generateCustomMix(columns, wordCount);
-                displayResult(result);
+                
+                if (columnsView.classList.contains('active')) {
+                    const columns = getColumnsContent();
+                    const result = generateCustomMix(columns, wordCount);
+                    displayResult(result);
+                } else {
+                    const words = getTextContent();
+                    const result = generateCustomMixFromText(words, wordCount);
+                    displayResult(result);
+                }
             });
             
             // Extract words from each column
@@ -161,6 +259,19 @@
                     const text = column.value.trim();
                     return text ? text.split('\n').filter(word => word.trim() !== '') : [];
                 });
+            }
+            
+            // Extract words from text input
+            function getTextContent() {
+                const text = textInput.value.trim();
+                if (!text) return [];
+                
+                // Split by spaces and remove empty entries
+                return text
+                    .replace(/\n/g, ' ')            // Replace newlines with spaces
+                    .replace(/[,.!?;:]/g, ' ')      // Replace common punctuation with spaces
+                    .split(' ')                     // Split by spaces
+                    .filter(word => word.trim() !== ''); // Remove empty entries
             }
             
             // Generate a mix with one word from each non-empty column
@@ -183,7 +294,7 @@
                 return shuffleArray([...allWords]);
             }
             
-            // Generate a custom mix with specified number of words
+            // Generate a custom mix with specified number of words from columns
             function generateCustomMix(columns, wordCount) {
                 // Flatten all words into one array
                 const allWords = columns.flat();
@@ -208,6 +319,28 @@
                 return result;
             }
             
+            // Generate a custom mix with specified number of words from text
+            function generateCustomMixFromText(words, wordCount) {
+                // If not enough words, return what we have
+                if (words.length <= wordCount) {
+                    return shuffleArray([...words]);
+                }
+                
+                // Sample wordCount number of words without replacement
+                const result = [];
+                const tempWords = [...words];
+                
+                for (let i = 0; i < wordCount; i++) {
+                    if (tempWords.length === 0) break;
+                    
+                    const randomIndex = Math.floor(Math.random() * tempWords.length);
+                    result.push(tempWords[randomIndex]);
+                    tempWords.splice(randomIndex, 1);
+                }
+                
+                return result;
+            }
+            
             // Shuffle array using Fisher-Yates algorithm
             function shuffleArray(array) {
                 for (let i = array.length - 1; i > 0; i--) {
@@ -220,7 +353,7 @@
             // Display the result in the output area
             function displayResult(words) {
                 if (words.length === 0) {
-                    output.textContent = "Please add some words to the columns first.";
+                    output.textContent = "Please add some words first.";
                     return;
                 }
                 
